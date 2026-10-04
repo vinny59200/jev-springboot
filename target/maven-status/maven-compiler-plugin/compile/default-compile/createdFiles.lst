@@ -1,0 +1,5 @@
+com\example\jevtriage\JevTicketTriageApplication.class
+com\example\jevtriage\model\TicketRequest.class
+com\example\jevtriage\service\TriageService.class
+com\example\jevtriage\model\TriageResult.class
+com\example\jevtriage\controller\TriageController.class

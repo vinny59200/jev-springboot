@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Jev Ticket Triage</title>
+  <style>
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,sans-serif;background:#f5f7fb;color:#172033;display:grid;place-items:center;min-height:100vh}
+    main{width:min(780px,92vw);background:white;border:1px solid #e4e8f0;border-radius:18px;padding:32px;box-shadow:0 12px 40px #17203312}
+    h1{margin:0 0 8px;font-size:32px}.sub{color:#667085;margin:0 0 24px}textarea{width:100%;min-height:150px;resize:vertical;border:1px solid #cfd6e4;border-radius:12px;padding:16px;font:inherit}
+    button{margin-top:14px;border:0;border-radius:10px;padding:12px 18px;background:#172033;color:white;font-weight:700;cursor:pointer}.examples{margin:12px 0 0;color:#667085;font-size:14px}.examples a{cursor:pointer;text-decoration:underline}
+    #result{display:none;margin-top:26px;border-top:1px solid #e4e8f0;padding-top:22px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:#f7f8fb;border-radius:12px;padding:16px}.label{font-size:12px;color:#667085;text-transform:uppercase;letter-spacing:.08em}.value{font-size:20px;font-weight:750;margin-top:5px}.error{color:#b42318;margin-top:14px}
+    @media(max-width:600px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body><main>
+  <h1>⚡ Jev Ticket Triage</h1>
+  <p class="sub">One ticket. Three typed decisions. No generated prose.</p>
+  <textarea id="ticket">Production checkout is down for all customers since 14:05. Every payment returns HTTP 500.</textarea>
+  <button id="go">Triage with Jev</button>
+  <p class="examples">Try: <a data-ticket="I was charged twice for my subscription and need a refund.">billing</a> · <a data-ticket="A customer says their API token may have been exposed publicly.">security</a> · <a data-ticket="How do I change the email address on my account?">low impact</a></p>
+  <div id="error" class="error"></div>
+  <section id="result"><div class="grid">
+    <div class="card"><div class="label">Category</div><div id="category" class="value"></div></div>
+    <div class="card"><div class="label">Severity</div><div id="severity" class="value"></div></div>
+    <div class="card"><div class="label">Action</div><div id="action" class="value"></div></div>
+  </div></section>
+</main><script>
+const ticket=document.querySelector('#ticket'),go=document.querySelector('#go'),result=document.querySelector('#result'),error=document.querySelector('#error');
+document.querySelectorAll('[data-ticket]').forEach(a=>a.onclick=()=>ticket.value=a.dataset.ticket);
+go.onclick=async()=>{error.textContent='';result.style.display='none';go.disabled=true;go.textContent='Thinking…';try{const r=await fetch('/api/triage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket:ticket.value})});const data=await r.json();if(!r.ok)throw new Error(data.error||'Request failed');document.querySelector('#category').textContent=data.category;document.querySelector('#severity').textContent=Number(data.severity).toFixed(2)+' / 3';document.querySelector('#action').textContent=data.action;result.style.display='block'}catch(e){error.textContent=e.message}finally{go.disabled=false;go.textContent='Triage with Jev'}};
+</script></body></html>
